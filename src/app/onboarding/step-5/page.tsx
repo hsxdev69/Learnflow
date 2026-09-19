@@ -60,8 +60,10 @@ export default function OnboardingStep5Page() {
         }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        throw new Error("Failed to finalize onboarding.");
+        throw new Error(data.error || "Failed to finalize onboarding.");
       }
 
       // Show animated personalization state per Prompt §51

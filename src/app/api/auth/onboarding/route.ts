@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, createSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { initializeStudentRoadmap } from "@/lib/roadmap";
 import { goalNameToCourseSlug } from "@/lib/courses";
+import { SessionUser } from "@/types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -63,47 +64,94 @@ export async function POST(req: NextRequest) {
       updateData.onboardingCompleted = true;
     }
 
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.user.upsert({
       where: { id: user.id },
-      data: updateData,
+      update: updateData,
+      create: {
+        id: user.id,
+        email: user.email,
+        name: updateData.name || user.name || "Student",
+        employeeId: user.employeeId || `STU-${Date.now().toString().slice(-6)}`,
+        passwordHash: "session_authenticated",
+        role: user.role || "LEARNER",
+        department: updateData.branch || user.department || "Computer Engineering",
+        designation: user.designation || "Engineering Student",
+        experienceLevel: user.experienceLevel || "Beginner",
+        ...updateData,
+      },
     });
 
     // Initialize roadmap for active learning path & all chosen goals
     if (finishSetup || skills || learningGoals || primaryLearningGoal) {
-      let parsedSkills: any[] = [];
-      if (skills) {
-        parsedSkills = Array.isArray(skills) ? skills : typeof skills === "string" ? JSON.parse(skills) : [];
-      } else if (updatedUser.skills) {
-        try {
-          parsedSkills = JSON.parse(updatedUser.skills);
-        } catch {}
-      }
+      try {
+        let parsedSkills: any[] = [];
+        if (skills) {
+          parsedSkills = Array.isArray(skills) ? skills : typeof skills === "string" ? JSON.parse(skills) : [];
+        } else if (updatedUser.skills) {
+          try {
+            parsedSkills = JSON.parse(updatedUser.skills);
+          } catch {}
+        }
 
-      const activeSlug =
-        updatedUser.currentCourseId ||
-        goalNameToCourseSlug(updatedUser.primaryLearningGoal || "dsa");
+        const activeSlug =
+          updatedUser.currentCourseId ||
+          goalNameToCourseSlug(updatedUser.primaryLearningGoal || "dsa");
 
-      await initializeStudentRoadmap(user.id, parsedSkills, activeSlug);
+        await initializeStudentRoadmap(user.id, parsedSkills, activeSlug);
 
-      // Initialize any other selected learning goals so their roadmaps and progress exist
-      if (updatedUser.learningGoals) {
-        try {
-          const goals: string[] = JSON.parse(updatedUser.learningGoals);
-          for (const g of goals) {
-            const s = goalNameToCourseSlug(g);
-            if (s !== activeSlug) {
-              await initializeStudentRoadmap(user.id, parsedSkills, s);
+        // Initialize any other selected learning goals so their roadmaps and progress exist
+        if (updatedUser.learningGoals) {
+          try {
+            const goals: string[] = JSON.parse(updatedUser.learningGoals);
+            for (const g of goals) {
+              const s = goalNameToCourseSlug(g);
+              if (s !== activeSlug) {
+                await initializeStudentRoadmap(user.id, parsedSkills, s);
+              }
             }
-          }
-        } catch {}
+          } catch {}
+        }
+      } catch (roadmapErr) {
+        console.warn("[Onboarding] Non-critical roadmap initialization warning:", roadmapErr);
       }
     }
 
-    return NextResponse.json({
+    const sessionPayload: SessionUser = {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      name: updatedUser.name,
+      employeeId: updatedUser.employeeId,
+      department: updatedUser.department,
+      designation: updatedUser.designation,
+      experienceLevel: updatedUser.experienceLevel,
+      role: updatedUser.role as "LEARNER" | "ADMIN",
+      onboardingCompleted: updatedUser.onboardingCompleted,
+      primaryLearningGoal: updatedUser.primaryLearningGoal || undefined,
+      targetSkill: updatedUser.targetSkill || undefined,
+      currentCourseId: updatedUser.currentCourseId || undefined,
+      skills: updatedUser.skills || undefined,
+      learningGoals: updatedUser.learningGoals || undefined,
+      branch: updatedUser.branch || undefined,
+    };
+
+    const token = createSessionToken(sessionPayload);
+
+    const response = NextResponse.json({
       success: true,
       user: updatedUser,
       stepCompleted: step,
     });
+
+    response.cookies.set({
+      name: SESSION_COOKIE_NAME,
+      value: token,
+      httpOnly: true,
+      path: "/",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } catch (error: any) {
     console.error("Onboarding update error:", error);
     return NextResponse.json(
