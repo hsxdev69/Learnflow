@@ -35,7 +35,11 @@ import {
   Shield,
   Network,
   Filter,
+  FileDown,
+  FileText,
 } from "lucide-react";
+import TopicPdfDownloadCard from "@/components/notes/TopicPdfDownloadCard";
+import { downloadCourseMasterPdf } from "@/lib/pdf/generateNotesPdf";
 import { goalNameToCourseSlug, courseSlugToGoalName } from "@/lib/courses";
 import {
   getCachedUser,
@@ -399,6 +403,47 @@ function LearnContent() {
               </div>
             </div>
 
+            {/* COURSE MASTER HANDWRITTEN NOTES PDF SECTION */}
+            <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-md border border-blue-800/60 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-300 flex-shrink-0">
+                  <FileText className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-400/20 mb-1">
+                    <span>Handwritten PDF Notes Compendium</span>
+                    <span>•</span>
+                    <span>All {topics.length} Topics</span>
+                  </div>
+                  <h3 className="text-base font-bold text-white">
+                    Download Complete {course?.title || "Course"} Notes PDF
+                  </h3>
+                  <p className="text-xs text-slate-300 max-w-xl">
+                    All module summaries, code templates, derivations, and exam cheatsheets compiled into a single printable PDF guide.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  downloadCourseMasterPdf(
+                    course?.title || "Engineering Course",
+                    modules.map((m) => ({
+                      title: m.title,
+                      topics: m.topics.map((t) => ({
+                        title: t.title,
+                        notesContent: t.description,
+                      })),
+                    }))
+                  );
+                }}
+                className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-md transition-all flex-shrink-0 w-full md:w-auto justify-center"
+              >
+                <FileDown className="w-4 h-4" />
+                <span>Download Complete Course PDF</span>
+              </button>
+            </div>
+
             {/* Filters and Search */}
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-between mb-6">
               <div className="relative w-full sm:w-80">
@@ -580,6 +625,15 @@ function LearnContent() {
                                 </div>
 
                                 <div className="flex items-center gap-2 self-end md:self-center">
+                                  <TopicPdfDownloadCard
+                                    topicTitle={topic.title}
+                                    courseTitle={course?.title || "Engineering Curriculum"}
+                                    moduleTitle={mod.title}
+                                    estimatedTime={topic.estimatedTime}
+                                    notesContent={topic.description}
+                                    variant="button"
+                                  />
+
                                   {isLocked ? (
                                     <button
                                       disabled
@@ -609,6 +663,49 @@ function LearnContent() {
                               </div>
                             );
                           })}
+                        </div>
+
+                        {/* DEDICATED MODULE HANDWRITTEN NOTES PDF SECTION */}
+                        <div className="bg-slate-50/90 border-t border-slate-200 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                              PDF
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-slate-800">
+                                  Module {modIdx + 1} Handwritten Notes Sheet
+                                </span>
+                                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                                  {mod.topics.length} Topics
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500">
+                                Formulas, memory diagrams, algorithms, and key revision points compiled for this module.
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              downloadCourseMasterPdf(
+                                `${course?.title || "Engineering"} - Module ${modIdx + 1}: ${mod.title}`,
+                                [
+                                  {
+                                    title: mod.title,
+                                    topics: mod.topics.map((t) => ({
+                                      title: t.title,
+                                      notesContent: t.description,
+                                    })),
+                                  },
+                                ]
+                              );
+                            }}
+                            className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 shadow-xs transition flex-shrink-0"
+                          >
+                            <FileDown className="w-3.5 h-3.5 text-blue-600" />
+                            <span>Download Module PDF</span>
+                          </button>
                         </div>
                       </div>
                     );

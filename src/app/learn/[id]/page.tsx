@@ -19,8 +19,11 @@ import {
   ChevronRight,
   Code,
   Layers,
+  FileDown,
 } from "lucide-react";
 import Link from "next/link";
+import HandwrittenNotesViewer from "@/components/notes/HandwrittenNotesViewer";
+import TopicPdfDownloadCard from "@/components/notes/TopicPdfDownloadCard";
 
 export default function TopicDetailPage() {
   const params = useParams();
@@ -161,6 +164,19 @@ export default function TopicDetailPage() {
           </div>
         </div>
 
+        {/* DEDICATED HANDWRITTEN NOTES PDF DOWNLOAD BANNER */}
+        <div className="mb-6">
+          <TopicPdfDownloadCard
+            topicTitle={topic.title}
+            courseTitle={topic.module?.course?.title || "Computer Science & Engineering"}
+            moduleTitle={topic.module?.title || "Core Concepts"}
+            category={topic.module?.course?.category || "Engineering"}
+            estimatedTime={topic.estimatedTime || "15-20 mins"}
+            notesContent={topic.notesContent}
+            variant="card"
+          />
+        </div>
+
         {/* 4 Interactive Section Tabs (PRD §17) */}
         <div className="flex border-b border-slate-200 mb-6 bg-white rounded-xl p-1 shadow-xs">
           <button
@@ -172,7 +188,7 @@ export default function TopicDetailPage() {
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            <span>📚 Notes</span>
+            <span>📖 Topic Notes (PDF Sheet)</span>
             {progress?.notesCompleted && <span className="text-xs">✓</span>}
           </button>
 
@@ -185,7 +201,7 @@ export default function TopicDetailPage() {
             }`}
           >
             <Play className="w-4 h-4" />
-            <span>▶ Video Lectures</span>
+            <span>🎬 Videos ({topic.videos?.length || 0})</span>
             {progress?.videoCompleted && <span className="text-xs">✓</span>}
           </button>
 
@@ -215,54 +231,19 @@ export default function TopicDetailPage() {
           </button>
         </div>
 
-        {/* SECTION 1: NOTES (PRD §18) */}
+        {/* SECTION 1: NOTES (HANDWRITTEN PDF FORMAT & VIEWER) */}
         <div className={activeTab === "notes" ? "block" : "hidden"}>
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
-            <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100">
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">Comprehensive Engineering Notes</h2>
-                <p className="text-xs text-slate-500">
-                  Concept derivations, memory layouts, algorithms, and code templates.
-                </p>
-              </div>
-              <button
-                onClick={handleToggleNotes}
-                disabled={updating}
-                className={`inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
-                  progress?.notesCompleted
-                    ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                    : "bg-blue-600 text-white hover:bg-blue-700 shadow-xs"
-                }`}
-              >
-                {progress?.notesCompleted ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Completed ✓</span>
-                  </>
-                ) : (
-                  <span>Mark Notes as Completed</span>
-                )}
-              </button>
-            </div>
-
-            {/* Render formatted notes */}
-            <div className="prose prose-slate max-w-none text-sm leading-relaxed text-slate-800 whitespace-pre-wrap font-sans">
-              {topic.notesContent || "Notes for this topic are being updated."}
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">
-              <span className="text-xs text-slate-500 font-medium">
-                Done studying? Proceed to video lectures or test yourself.
-              </span>
-              <button
-                onClick={() => setActiveTab("videos")}
-                className="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-800"
-              >
-                <span>Go to Free Videos</span>
-                <ChevronRight className="w-4 h-4 ml-0.5" />
-              </button>
-            </div>
-          </div>
+          <HandwrittenNotesViewer
+            topicId={topic.id}
+            topicTitle={topic.title}
+            courseTitle={topic.module?.course?.title || "Computer Science & Engineering"}
+            moduleTitle={topic.module?.title || "Core Concepts"}
+            category={topic.module?.course?.category || "Engineering"}
+            estimatedTime={topic.estimatedTime || "15-20 mins"}
+            initialContent={topic.notesContent || ""}
+            onMarkCompleted={handleToggleNotes}
+            isCompleted={progress?.notesCompleted}
+          />
         </div>
 
         {/* SECTION 2: FREE VIDEO LECTURES (PRD §19) */}

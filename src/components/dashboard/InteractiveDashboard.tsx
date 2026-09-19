@@ -17,8 +17,12 @@ import {
   Check,
   Star,
   Layers,
+  FileDown,
+  FileText,
 } from "lucide-react";
 import LearningPathSelector, { LearningPathOption } from "./LearningPathSelector";
+import TopicPdfDownloadCard from "@/components/notes/TopicPdfDownloadCard";
+import { downloadTopicNotesPdf } from "@/lib/pdf/generateNotesPdf";
 import { courseSlugToGoalName } from "@/lib/courses";
 import { setCachedUser, setCachedRoadmap } from "@/lib/clientCache";
 
@@ -400,6 +404,20 @@ export default function InteractiveDashboard({
               >
                 View Topic Notes & Videos
               </Link>
+
+              <button
+                onClick={() => {
+                  downloadTopicNotesPdf({
+                    title: activeTopic.title,
+                    courseName: currentPathName,
+                    content: activeTopic.description,
+                  });
+                }}
+                className="inline-flex items-center justify-center py-2.5 px-4 rounded-xl text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 transition-colors shadow-xs"
+              >
+                <FileDown className="w-3.5 h-3.5 mr-1.5 text-emerald-300" />
+                Download Notes PDF
+              </button>
             </div>
           </div>
         </div>
@@ -501,25 +519,35 @@ export default function InteractiveDashboard({
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-200/60 mt-auto">
+                <div className="pt-2 border-t border-slate-200/60 mt-auto flex items-center justify-between gap-1">
                   {isLocked ? (
                     <div className="text-[11px] font-semibold text-slate-400 flex items-center">
                       <Lock className="w-3 h-3 mr-1" /> Complete prerequisite
                     </div>
                   ) : (
-                    <Link
-                      href={`/learn/${node.slug}`}
-                      className={`inline-flex items-center text-xs font-bold transition-colors ${
-                        isInProgress
-                          ? "text-blue-700 hover:text-blue-900"
-                          : isCompleted || isMastered
-                          ? "text-emerald-700 hover:text-emerald-900"
-                          : "text-slate-700 hover:text-blue-700"
-                      }`}
-                    >
-                      <span>{isCompleted || isMastered ? "Review Topic" : "Start Learning"}</span>
-                      <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
-                    </Link>
+                    <>
+                      <Link
+                        href={`/learn/${node.slug}`}
+                        className={`inline-flex items-center text-xs font-bold transition-colors ${
+                          isInProgress
+                            ? "text-blue-700 hover:text-blue-900"
+                            : isCompleted || isMastered
+                            ? "text-emerald-700 hover:text-emerald-900"
+                            : "text-slate-700 hover:text-blue-700"
+                        }`}
+                      >
+                        <span>{isCompleted || isMastered ? "Review" : "Learn"}</span>
+                        <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
+                      </Link>
+
+                      <TopicPdfDownloadCard
+                        variant="button"
+                        topicTitle={node.title}
+                        courseTitle={currentPathName}
+                        notesContent={node.description}
+                        className="!px-2 !py-0.5 text-[10px]"
+                      />
+                    </>
                   )}
                 </div>
               </div>
