@@ -4,14 +4,25 @@ import { validateQuestionQuality } from "./validator";
 
 export class GeminiAIService {
   private apiKey?: string;
-  private primaryModels = ["gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-3.8-flash"];
+  private primaryModels = ["gemini-3.5-flash-lite", "gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"];
 
   constructor() {
-    this.apiKey = process.env.GEMINI_API_KEY || "";
+    this.apiKey =
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+      "";
   }
 
   private async callGemini(prompt: string, jsonMode: boolean = false): Promise<string> {
-    if (!this.apiKey) {
+    const activeKey =
+      this.apiKey ||
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+      "";
+
+    if (!activeKey) {
       throw new Error("No Gemini API key configured");
     }
 
@@ -19,7 +30,7 @@ export class GeminiAIService {
 
     for (const model of this.primaryModels) {
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 20000);
 
@@ -67,12 +78,19 @@ export class GeminiAIService {
     count: number,
     difficulty: "EASY" | "MEDIUM" | "HARD"
   ): Promise<GeneratedQuestion[]> {
-    if (!this.apiKey) {
+    const activeKey =
+      this.apiKey ||
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+      "";
+
+    if (!activeKey) {
       return statisticalEngine.generateMCQs(materialContent, materialTitle, domain, topic, count, difficulty);
     }
 
     try {
-      const prompt = `You are a statistical capacity building expert for India's Official Statistical System (MoSPI/NSSO/CSO).
+      const prompt = `You are a Principal Engineering Professor and Technical Assessment expert for LearnFlow.
 Generate exactly ${count} multiple-choice questions (MCQs) strictly grounded in the following text from "${materialTitle}":
 ---
 ${materialContent.slice(0, 6000)}

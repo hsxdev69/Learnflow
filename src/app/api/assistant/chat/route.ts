@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { aiService } from "@/lib/ai";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -11,15 +13,44 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Query is required" }, { status: 400 });
     }
 
-    // Retrieve engineering topics and notes for RAG
-    const topics = await prisma.topic.findMany({
-      select: {
-        title: true,
-        description: true,
-        notesContent: true,
-      },
-      take: 6,
-    });
+    const keywords = query
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter((w) => w.length > 2);
+
+    // Retrieve engineering topics relevant to student's query for RAG
+    let topics: { title: string; description: string; notesContent: string | null }[] = [];
+
+    if (keywords.length > 0) {
+      topics = await prisma.topic.findMany({
+        where: {
+          OR: keywords.slice(0, 5).map((kw) => ({
+            OR: [
+              { title: { contains: kw } },
+              { description: { contains: kw } },
+            ],
+          })),
+        },
+        select: {
+          title: true,
+          description: true,
+          notesContent: true,
+        },
+        take: 8,
+      });
+    }
+
+    if (topics.length === 0) {
+      topics = await prisma.topic.findMany({
+        select: {
+          title: true,
+          description: true,
+          notesContent: true,
+        },
+        take: 8,
+      });
+    }
 
     const materials = await prisma.learningMaterial.findMany({
       select: {
@@ -46,6 +77,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       answer: result.answer,
       source: result.source,
+      suggestedResources: result.suggestedResources,
     });
   } catch (error: any) {
     console.error("Chat route error:", error);
