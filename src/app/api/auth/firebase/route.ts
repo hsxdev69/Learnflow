@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
       branch: user.branch || undefined,
       year: user.year || undefined,
       college: user.college || undefined,
+      photoURL: photoURL || undefined,
     };
 
     const token = createSessionToken(sessionUser);

@@ -50,6 +50,7 @@ export function parseSessionToken(token: string): SessionUser | null {
       targetSkill: parsed.targetSkill || undefined,
       learningGoals: parsed.learningGoals || undefined,
       primaryLearningGoal: parsed.primaryLearningGoal || undefined,
+      photoURL: parsed.photoURL || undefined,
     };
   } catch {
     return null;

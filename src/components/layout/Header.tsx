@@ -77,10 +77,19 @@ export default function Header({ user }: HeaderProps) {
           <div className="flex items-center space-x-2 border-l border-slate-200 pl-3">
             <Link
               href="/profile"
-              className="btn-press p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+              className="btn-press p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all flex items-center justify-center"
               title="Edit Profile & Skills"
             >
-              <UserIcon className="w-4 h-4" />
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user.name || "User Avatar"}
+                  className="w-7 h-7 rounded-full object-cover border border-slate-200 shadow-xs"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <UserIcon className="w-4 h-4" />
+              )}
             </Link>
 
             {isAdmin ? (

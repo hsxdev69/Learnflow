@@ -28,6 +28,7 @@ export interface SessionUser {
   targetSkill?: string | null;
   learningGoals?: string | null;
   primaryLearningGoal?: string | null;
+  photoURL?: string | null;
 }
 
 export type TopicStatus = "LOCKED" | "AVAILABLE" | "IN_PROGRESS" | "QUIZ_PENDING" | "COMPLETED" | "MASTERED";
