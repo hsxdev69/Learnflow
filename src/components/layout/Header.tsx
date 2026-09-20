@@ -70,7 +70,7 @@ export default function Header({ user }: HeaderProps) {
           <div className="flex items-center space-x-2 border-l border-slate-200 pl-3">
             <Link
               href="/profile"
-              className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+              className="btn-press p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
               title="Edit Profile & Skills"
             >
               <UserIcon className="w-4 h-4" />
@@ -89,7 +89,7 @@ export default function Header({ user }: HeaderProps) {
 
             <button
               onClick={handleLogout}
-              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+              className="btn-press p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer"
               title="Sign Out"
               aria-label="Sign Out"
             >

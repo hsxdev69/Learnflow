@@ -101,10 +101,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       {/* Top Banner */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-700 text-white shadow-md mb-3">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center animate-fade-in-down">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white shadow-lg shadow-blue-500/25 mb-3 animate-float">
           <GraduationCap className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-black tracking-tight text-slate-900">
@@ -113,14 +113,14 @@ export default function LoginPage() {
         <p className="mt-1 text-sm text-slate-600 font-medium">
           AI-Powered Personalized Learning Platform for Engineering Students
         </p>
-        <span className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-blue-50 text-blue-800 text-xs font-semibold rounded-full border border-blue-200">
-          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+        <span className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-blue-50 text-blue-800 text-xs font-semibold rounded-full border border-blue-200 shadow-xs">
+          <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-float" />
           Autonomous Adaptive Learning Platform
         </span>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-md sm:rounded-2xl border border-slate-200 sm:px-10">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md animate-scale-in">
+        <div className="bg-white py-8 px-6 shadow-xl sm:rounded-2xl border border-slate-200/80 sm:px-10">
           {/* Tab Switcher */}
           <div className="flex border-b border-slate-200 mb-6">
             <button
@@ -200,7 +200,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
+                className="btn-press w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-md hover:shadow-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {loading ? "Signing in..." : "Sign In to Platform"}
               </button>
@@ -288,7 +288,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
+                className="btn-press w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-md hover:shadow-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {loading ? "Creating Account..." : "Create Account & Start Onboarding →"}
               </button>
@@ -304,14 +304,14 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => handleLogin(undefined, "harshal.patel@engg.edu")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 transition-colors text-left"
+                className="btn-press card-hover w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/60 hover:border-blue-300 transition-all text-left group cursor-pointer"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">
+                  <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs group-hover:scale-105 transition-transform">
                     HP
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-slate-900">
+                    <p className="text-xs font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
                       Harshal Patel (Engineering Student)
                     </p>
                     <p className="text-[11px] text-slate-500">
@@ -319,20 +319,20 @@ export default function LoginPage() {
                     </p>
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-slate-400" />
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
               </button>
 
               <button
                 type="button"
                 onClick={() => handleLogin(undefined, "admin@mospi.gov.in")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-purple-50 hover:border-purple-300 transition-colors text-left"
+                className="btn-press card-hover w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50/60 hover:border-purple-300 transition-all text-left group cursor-pointer"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700">
+                  <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 group-hover:scale-105 transition-transform">
                     <Shield className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-slate-900">
+                    <p className="text-xs font-semibold text-slate-900 group-hover:text-purple-600 transition-colors">
                       Dr. Arvind Saxena (Admin / Faculty)
                     </p>
                     <p className="text-[11px] text-slate-500">
@@ -340,7 +340,7 @@ export default function LoginPage() {
                     </p>
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-slate-400" />
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
               </button>
             </div>
           </div>

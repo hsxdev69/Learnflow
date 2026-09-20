@@ -185,11 +185,11 @@ function ResultInner() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-12 w-full flex-1">
         {/* Tier-Specific Hero Card */}
         {tier === "MASTERED" && (
-          <div className="bg-gradient-to-br from-amber-500 via-amber-600 to-yellow-600 text-white rounded-3xl p-6 sm:p-8 shadow-xl text-center mb-6 relative overflow-hidden">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-3 shadow-inner">
+          <div className="bg-gradient-to-br from-amber-500 via-amber-600 to-yellow-600 text-white rounded-3xl p-6 sm:p-8 shadow-xl text-center mb-6 relative overflow-hidden animate-scale-in">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-3 shadow-inner animate-float">
               <Star className="w-9 h-9 fill-white text-white animate-pulse" />
             </div>
-            <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider">
+            <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider shadow-xs">
               Topic Mastery Level Achieved
             </span>
             <h1 className="text-2xl sm:text-3xl font-black mt-2">Excellent! Topic Mastered 🌟</h1>
@@ -198,13 +198,13 @@ function ResultInner() {
             </p>
 
             <div className="my-6">
-              <span className="text-6xl font-black tracking-tight">{percentage}%</span>
+              <span className="text-6xl font-black tracking-tight drop-shadow-md">{percentage}%</span>
             </div>
 
             {nextTopic ? (
               <Link
                 href={`/learn/${nextTopic.slug}`}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-amber-900 font-extrabold text-sm shadow-lg hover:bg-amber-50 transition"
+                className="btn-press inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-amber-900 font-extrabold text-sm shadow-lg hover:bg-amber-50 transition-all hover:scale-102"
               >
                 <span>Continue to Next Topic: {nextTopic.title}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -212,7 +212,7 @@ function ResultInner() {
             ) : (
               <Link
                 href="/learn"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-amber-900 font-extrabold text-sm shadow-lg hover:bg-amber-50 transition"
+                className="btn-press inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-amber-900 font-extrabold text-sm shadow-lg hover:bg-amber-50 transition-all hover:scale-102"
               >
                 <span>View Full Learning Curriculum</span>
                 <ArrowRight className="w-4 h-4" />
@@ -222,11 +222,11 @@ function ResultInner() {
         )}
 
         {tier === "COMPLETED" && (
-          <div className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-3xl p-6 sm:p-8 shadow-xl text-center mb-6 relative overflow-hidden">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-3 shadow-inner">
+          <div className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-3xl p-6 sm:p-8 shadow-xl text-center mb-6 relative overflow-hidden animate-scale-in">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-3 shadow-inner animate-float">
               <Award className="w-9 h-9 text-white" />
             </div>
-            <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider">
+            <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider shadow-xs">
               Passed & Unlocked
             </span>
             <h1 className="text-2xl sm:text-3xl font-black mt-2">Great Work! Topic Completed 🎉</h1>
@@ -235,13 +235,13 @@ function ResultInner() {
             </p>
 
             <div className="my-6">
-              <span className="text-6xl font-black tracking-tight">{percentage}%</span>
+              <span className="text-6xl font-black tracking-tight drop-shadow-md">{percentage}%</span>
             </div>
 
             {nextTopic ? (
               <Link
                 href={`/learn/${nextTopic.slug}`}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-emerald-900 font-extrabold text-sm shadow-lg hover:bg-emerald-50 transition"
+                className="btn-press inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-emerald-900 font-extrabold text-sm shadow-lg hover:bg-emerald-50 transition-all hover:scale-102"
               >
                 <span>Continue to Next Topic: {nextTopic.title}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -249,7 +249,7 @@ function ResultInner() {
             ) : (
               <Link
                 href="/learn"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-emerald-900 font-extrabold text-sm shadow-lg hover:bg-emerald-50 transition"
+                className="btn-press inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-emerald-900 font-extrabold text-sm shadow-lg hover:bg-emerald-50 transition-all hover:scale-102"
               >
                 <span>Return to Roadmap</span>
                 <ArrowRight className="w-4 h-4" />
@@ -259,11 +259,11 @@ function ResultInner() {
         )}
 
         {tier === "RETRY" && (
-          <div className="bg-gradient-to-br from-amber-600 to-orange-600 text-white rounded-3xl p-6 sm:p-8 shadow-xl text-center mb-6 relative overflow-hidden">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-3 shadow-inner">
+          <div className="bg-gradient-to-br from-amber-600 to-orange-600 text-white rounded-3xl p-6 sm:p-8 shadow-xl text-center mb-6 relative overflow-hidden animate-scale-in">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-3 shadow-inner animate-float">
               <TrendingUp className="w-8 h-8 text-white" />
             </div>
-            <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider">
+            <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider shadow-xs">
               60% – 79% Practice Required
             </span>
             <h1 className="text-2xl sm:text-3xl font-black mt-2">Almost There! Keep Going 💪</h1>
@@ -272,20 +272,20 @@ function ResultInner() {
             </p>
 
             <div className="my-6">
-              <span className="text-6xl font-black tracking-tight">{percentage}%</span>
+              <span className="text-6xl font-black tracking-tight drop-shadow-md">{percentage}%</span>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href={`/quizzes/${quizId}`}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white text-orange-900 font-extrabold text-xs shadow-lg hover:bg-orange-50 transition"
+                className="btn-press inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white text-orange-900 font-extrabold text-xs shadow-lg hover:bg-orange-50 transition-all hover:scale-102"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>Retry Quiz</span>
               </Link>
               <Link
                 href="/learn"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/20 text-white font-bold text-xs hover:bg-white/30 transition"
+                className="btn-press inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/20 text-white font-bold text-xs hover:bg-white/30 transition-all"
               >
                 <span>Review Topic Notes</span>
               </Link>
@@ -294,11 +294,11 @@ function ResultInner() {
         )}
 
         {tier === "RELEARN" && (
-          <div className="bg-gradient-to-br from-rose-600 to-red-700 text-white rounded-3xl p-6 sm:p-8 shadow-xl text-center mb-6 relative overflow-hidden">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-3 shadow-inner">
+          <div className="bg-gradient-to-br from-rose-600 to-red-700 text-white rounded-3xl p-6 sm:p-8 shadow-xl text-center mb-6 relative overflow-hidden animate-scale-in">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-3 shadow-inner animate-float">
               <AlertTriangle className="w-8 h-8 text-white" />
             </div>
-            <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider">
+            <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider shadow-xs">
               Score &lt; 60% • Relearn Advised
             </span>
             <h1 className="text-2xl sm:text-3xl font-black mt-2">Strengthen Your Foundation 📚</h1>
@@ -307,20 +307,20 @@ function ResultInner() {
             </p>
 
             <div className="my-6">
-              <span className="text-6xl font-black tracking-tight">{percentage}%</span>
+              <span className="text-6xl font-black tracking-tight drop-shadow-md">{percentage}%</span>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/learn"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white text-rose-900 font-extrabold text-xs shadow-lg hover:bg-rose-50 transition"
+                className="btn-press inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white text-rose-900 font-extrabold text-xs shadow-lg hover:bg-rose-50 transition-all hover:scale-102"
               >
                 <BookOpen className="w-4 h-4" />
                 <span>Review Topic Notes & Lectures</span>
               </Link>
               <Link
                 href={`/quizzes/${quizId}`}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/20 text-white font-bold text-xs hover:bg-white/30 transition"
+                className="btn-press inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/20 text-white font-bold text-xs hover:bg-white/30 transition-all"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>Retry Quiz</span>
@@ -331,7 +331,7 @@ function ResultInner() {
 
         {/* Quick Summary Pill Bar */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shadow-xs">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shadow-xs card-hover">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
               <CheckCircle2 className="w-5 h-5" />
             </div>
@@ -343,7 +343,7 @@ function ResultInner() {
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shadow-xs">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shadow-xs card-hover">
             <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
               <XCircle className="w-5 h-5" />
             </div>

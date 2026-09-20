@@ -128,13 +128,13 @@ export default function TopicDetailPage() {
         </div>
 
         {/* Topic Header Card (PRD §17) */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-6">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-6 animate-fade-in-down">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200 shadow-xs">
               {topic.module?.course?.title || "DSA"} • {topic.module?.title || "Linear Data Structures"}
             </span>
             <span className="text-xs text-slate-500 flex items-center font-medium">
-              <Clock className="w-3.5 h-3.5 mr-1" />
+              <Clock className="w-3.5 h-3.5 mr-1 text-slate-400" />
               {topic.estimatedTime || "45 mins"}
             </span>
           </div>
@@ -143,7 +143,7 @@ export default function TopicDetailPage() {
             {topic.title}
           </h1>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 my-4 text-xs text-slate-700 leading-relaxed">
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 my-4 text-xs text-slate-700 leading-relaxed card-hover">
             <span className="font-bold text-slate-900 block mb-1">Why this topic matters:</span>
             {topic.description}
           </div>
@@ -152,11 +152,11 @@ export default function TopicDetailPage() {
           <div className="pt-2 border-t border-slate-100">
             <div className="flex items-center justify-between text-xs mb-1.5">
               <span className="font-bold text-slate-700">Topic Completion</span>
-              <span className="font-extrabold text-blue-600">{calcProgress}%</span>
+              <span className="font-extrabold text-blue-600 transition-all">{calcProgress}%</span>
             </div>
             <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
               <div
-                className="bg-blue-600 h-full rounded-full transition-all duration-500"
+                className="bg-blue-600 h-full rounded-full transition-all duration-700 ease-out"
                 style={{ width: `${calcProgress}%` }}
               />
             </div>
@@ -164,12 +164,12 @@ export default function TopicDetailPage() {
         </div>
 
         {/* 4 Interactive Section Tabs (PRD §17) */}
-        <div className="flex border-b border-slate-200 mb-6 bg-white rounded-xl p-1 shadow-xs">
+        <div className="flex border border-slate-200 mb-6 bg-white rounded-xl p-1 shadow-xs animate-fade-in-up">
           <button
             onClick={() => setActiveTab("notes")}
-            className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-colors flex items-center justify-center space-x-1.5 ${
+            className={`btn-press flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center justify-center space-x-1.5 cursor-pointer ${
               activeTab === "notes"
-                ? "bg-blue-600 text-white shadow-xs"
+                ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -180,9 +180,9 @@ export default function TopicDetailPage() {
 
           <button
             onClick={() => setActiveTab("videos")}
-            className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-colors flex items-center justify-center space-x-1.5 ${
+            className={`btn-press flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center justify-center space-x-1.5 cursor-pointer ${
               activeTab === "videos"
-                ? "bg-blue-600 text-white shadow-xs"
+                ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -193,9 +193,9 @@ export default function TopicDetailPage() {
 
           <button
             onClick={() => setActiveTab("quiz")}
-            className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-colors flex items-center justify-center space-x-1.5 ${
+            className={`btn-press flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center justify-center space-x-1.5 cursor-pointer ${
               activeTab === "quiz"
-                ? "bg-blue-600 text-white shadow-xs"
+                ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -206,9 +206,9 @@ export default function TopicDetailPage() {
 
           <button
             onClick={() => setActiveTab("progress")}
-            className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-colors flex items-center justify-center space-x-1.5 ${
+            className={`btn-press flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center justify-center space-x-1.5 cursor-pointer ${
               activeTab === "progress"
-                ? "bg-blue-600 text-white shadow-xs"
+                ? "bg-blue-600 text-white shadow-sm"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
@@ -317,10 +317,10 @@ export default function TopicDetailPage() {
         </div>
 
         {/* SECTION 3: PRACTICE QUIZ (PRD §21, §22) */}
-        <div className={activeTab === "quiz" ? "block" : "hidden"}>
+        <div className={activeTab === "quiz" ? "block animate-fade-in-up" : "hidden"}>
           <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
             <div className="max-w-xl mx-auto text-center py-4">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4 shadow-inner">
+              <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4 shadow-inner animate-float">
                 <HelpCircle className="w-8 h-8" />
               </div>
 
@@ -331,7 +331,7 @@ export default function TopicDetailPage() {
                 Test your understanding with our rigorous {topic.quiz?.questionCount || 30}-question assessment. Score ≥80% to demonstrate proficiency and unlock the next roadmap milestone.
               </p>
 
-              <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-8 text-left text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-8 text-left text-xs bg-slate-50 p-4 rounded-xl border border-slate-200 card-hover">
                 <div>
                   <span className="text-slate-400 block">Total Questions</span>
                   <span className="text-sm font-black text-slate-800">{topic.quiz?.questionCount || 30} Questions</span>
@@ -351,7 +351,7 @@ export default function TopicDetailPage() {
               </div>
 
               {progress?.bestQuizScore > 0 && (
-                <div className="mb-6 inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full text-xs font-bold text-blue-800">
+                <div className="mb-6 inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full text-xs font-bold text-blue-800 animate-scale-in">
                   <Award className="w-4 h-4 text-blue-600" />
                   <span>Your Best Score: {progress.bestQuizScore}% ({progress.status})</span>
                 </div>
@@ -360,10 +360,10 @@ export default function TopicDetailPage() {
               <div>
                 <Link
                   href={`/quizzes/${topic.quiz?.id || topic.slug}?topicId=${topic.id}&courseId=${topic.module?.course?.id || ""}`}
-                  className="inline-flex items-center justify-center py-3.5 px-8 rounded-xl font-black text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all"
+                  className="btn-press inline-flex items-center justify-center py-3.5 px-8 rounded-xl font-black text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-blue-500/25 transition-all"
                 >
                   <Play className="w-4 h-4 mr-2 fill-white" />
-                  Start {topic.quiz?.questionCount || 5}-Question Quiz Now →
+                  Start {topic.quiz?.questionCount || 30}-Question Quiz Now →
                 </Link>
               </div>
             </div>
@@ -371,12 +371,12 @@ export default function TopicDetailPage() {
         </div>
 
         {/* SECTION 4: PROGRESS BREAKDOWN (PRD §20, §32) */}
-        <div className={activeTab === "progress" ? "block" : "hidden"}>
+        <div className={activeTab === "progress" ? "block animate-fade-in-up" : "hidden"}>
           <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
             <h2 className="text-lg font-bold text-slate-900 mb-6">Topic Progress Breakdown</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 card-hover transition-all">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
                   1. Notes Studied
                 </span>
@@ -389,7 +389,7 @@ export default function TopicDetailPage() {
                 </span>
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 card-hover transition-all">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
                   2. Video Learning
                 </span>
@@ -402,7 +402,7 @@ export default function TopicDetailPage() {
                 </span>
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 card-hover transition-all">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
                   3. Quiz Status
                 </span>
@@ -418,7 +418,7 @@ export default function TopicDetailPage() {
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 leading-relaxed">
+            <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 leading-relaxed card-hover">
               <span className="font-bold block mb-1">Adaptive Progression Rule:</span>
               Once you complete the quiz with at least 80%, this topic will be marked as Completed and the next roadmap topic will automatically unlock!
             </div>
