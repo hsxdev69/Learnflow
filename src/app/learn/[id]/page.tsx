@@ -23,7 +23,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import EmbeddedPdfViewer from "@/components/notes/EmbeddedPdfViewer";
-import TopicPdfDownloadCard from "@/components/notes/TopicPdfDownloadCard";
 
 export default function TopicDetailPage() {
   const params = useParams();
@@ -162,19 +161,6 @@ export default function TopicDetailPage() {
               />
             </div>
           </div>
-        </div>
-
-        {/* DEDICATED HANDWRITTEN NOTES PDF DOWNLOAD BANNER */}
-        <div className="mb-6">
-          <TopicPdfDownloadCard
-            topicTitle={topic.title}
-            courseTitle={topic.module?.course?.title || "Computer Science & Engineering"}
-            moduleTitle={topic.module?.title || "Core Concepts"}
-            category={topic.module?.course?.category || "Engineering"}
-            estimatedTime={topic.estimatedTime || "15-20 mins"}
-            notesContent={topic.notesContent}
-            variant="card"
-          />
         </div>
 
         {/* 4 Interactive Section Tabs (PRD §17) */}
