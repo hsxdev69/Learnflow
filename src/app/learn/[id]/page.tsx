@@ -22,7 +22,7 @@ import {
   FileDown,
 } from "lucide-react";
 import Link from "next/link";
-import HandwrittenNotesViewer from "@/components/notes/HandwrittenNotesViewer";
+import EmbeddedPdfViewer from "@/components/notes/EmbeddedPdfViewer";
 import TopicPdfDownloadCard from "@/components/notes/TopicPdfDownloadCard";
 
 export default function TopicDetailPage() {
@@ -188,7 +188,7 @@ export default function TopicDetailPage() {
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            <span>📖 Topic Notes (PDF Sheet)</span>
+            <span>📖 Multi-Page Notes (PDF Preview)</span>
             {progress?.notesCompleted && <span className="text-xs">✓</span>}
           </button>
 
@@ -231,15 +231,15 @@ export default function TopicDetailPage() {
           </button>
         </div>
 
-        {/* SECTION 1: NOTES (HANDWRITTEN PDF FORMAT & VIEWER) */}
+        {/* SECTION 1: NOTES (EMBEDDED INLINE PDF VIEWER & MULTI-PAGE NOTES) */}
         <div className={activeTab === "notes" ? "block" : "hidden"}>
-          <HandwrittenNotesViewer
+          <EmbeddedPdfViewer
             topicId={topic.id}
             topicTitle={topic.title}
             courseTitle={topic.module?.course?.title || "Computer Science & Engineering"}
             moduleTitle={topic.module?.title || "Core Concepts"}
             category={topic.module?.course?.category || "Engineering"}
-            estimatedTime={topic.estimatedTime || "15-20 mins"}
+            estimatedTime={topic.estimatedTime || "25-30 mins"}
             initialContent={topic.notesContent || ""}
             onMarkCompleted={handleToggleNotes}
             isCompleted={progress?.notesCompleted}

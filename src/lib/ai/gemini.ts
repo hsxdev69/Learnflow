@@ -173,90 +173,52 @@ Instructions:
     if (this.apiKey) {
       try {
         const prompt = `You are a Principal Engineering Professor and Technical Lead at LearnFlow.
-Generate an in-depth, rigorous, handwritten-style PDF study guide for the topic: "${topicTitle}" (Course: ${courseName || "Computer Science & Engineering"}).
+Generate an exhaustive, multi-page handwritten-style technical PDF manual (minimum 2000-2500 words across 6 comprehensive sections, filling at least 3-4 full A4 pages) for the topic: "${topicTitle}" (Course: ${courseName || "Computer Science & Engineering"}).
 
-${existingNotes ? `Existing syllabus baseline:\n${existingNotes.slice(0, 2000)}\n` : ""}
+${existingNotes ? `Existing syllabus baseline:\n${existingNotes.slice(0, 2500)}\n` : ""}
 
-Format your output in clean, structured Markdown with the following sections:
-# ${topicTitle} - Comprehensive Study Notes
+Format your output in clean, structured Markdown adhering strictly to these 6 extensive sections:
+# ${topicTitle} - Comprehensive Engineering Manual & Revision Guide
 
-## 1. Concept Overview & Intuition
-- Clear definition and core motivation.
-- Real-world engineering analogy.
+> Official LearnFlow Academic Syllabus Reference: In-depth technical specification covering theoretical foundations, memory layout, mathematical derivations, asymptotic complexity, production templates, and high-yield interview questions.
 
-## 2. Mathematical Foundations & Core Equations
-- Key formulas, complexity analysis (Big-O Time and Space).
+## 1. Executive Architectural Overview & Core Motivation
+- Deep concept definition, motivation, and trade-offs.
+- Real-world distributed systems / production engineering analogy.
+- Historical evolution and modern systems architecture.
 
-## 3. Implementation & Idiomatic Code Template
-Provide clean, commented code snippet (C++/Python/TypeScript as appropriate).
+## 2. Deep Theoretical Foundations & Memory Architecture
+- Stack vs Heap allocation dynamics, pointer dereferencing, and memory footprints.
+- CPU cache line locality (L1/L2 prefetching, avoiding stall cycles).
+- Formal state invariants and boundary guarantees.
 
-## 4. Edge Cases, Pitfalls & Interview Traps
-- Common mistakes made by students and how to avoid them.
+## 3. Mathematical Foundations & Asymptotic Complexity Breakdown
+- Detailed Asymptotic Table (Best, Average, Worst Time $\\mathcal{O}$, Auxiliary Space $\\mathcal{O}$).
+- Recurrence relations, Master Theorem derivations, and induction proofs.
 
-## 5. Quick Revision Cheatsheet & Key Takeaways
-- 4-5 high-yield bullet points for last-minute exam revision.
+## 4. Production-Grade Reference Implementation
+Provide a clean, battle-tested C++ or Python template with extensive line-by-line engineering commentary, bounds checking, and exception safety.
 
-Write thoroughly and professionally.`;
+## 5. Critical Edge Cases, Failure Modes & Debugging Traps
+- 5 subtle failure modes (off-by-one errors, integer overflow in midpoints, memory leaks, cyclic references, shallow vs deep copying).
 
-        return await this.callGemini(prompt, false);
+## 6. University & Technical Interview Mastery Cheatsheet
+- 6 rapid-recall bullet points, exam formulas, and high-yield interview questions with model answers.
+
+Write with extreme technical depth and rigor.`;
+
+        const response = await this.callGemini(prompt, false);
+        if (response && response.length > 500) {
+          return response;
+        }
       } catch (err) {
-        console.warn("Gemini notes generation failed, using structured fallback:", err);
+        console.warn("Gemini notes generation failed, using structured multi-page fallback:", err);
       }
     }
 
-    // High quality fallback if Gemini API is not configured
-    return `# ${topicTitle} - Comprehensive Study Notes
-
-## 1. Concept Overview & Intuition
-**${topicTitle}** is a foundational pillar in modern engineering and software development. 
-Understanding how this concept functions at the architectural and operational level is essential for technical interviews, GATE/university examinations, and production system development.
-
-- **Primary Objective**: Provide efficient execution, deterministic state transitions, and maintainable abstractions.
-- **Real-World Analogy**: Think of ${topicTitle} like an optimized transit hub—managing payloads systematically with minimal routing overhead and verified integrity checks.
-
-## 2. Core Principles & Memory Layout
-${existingNotes ? existingNotes : `- **State Allocation**: Stack and heap memory segmentation.\n- **Data Invariants**: Strict type guarantees and deterministic bounds checking.\n- **Algorithmic Efficiency**: Optimized for optimal average and worst-case throughput.`}
-
-## 3. Algorithmic Complexity Analysis
-- **Best-Case Time Complexity**: $\\mathcal{O}(1)$ to $\\mathcal{O}(\\log n)$
-- **Average-Case Time Complexity**: $\\mathcal{O}(n \\log n)$
-- **Worst-Case Time Complexity**: $\\mathcal{O}(n)$ or $\\mathcal{O}(n^2)$ depending on input distribution
-- **Auxiliary Space Complexity**: $\\mathcal{O}(1)$ in-place or $\\mathcal{O}(n)$ with recursion stack
-
-## 4. Key Implementation Template
-\`\`\`cpp
-// Production Reference Implementation: ${topicTitle}
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-template <typename T>
-class SystemExecutor {
-private:
-    std::vector<T> dataStore;
-public:
-    void execute() {
-        std::cout << "Optimized execution for ${topicTitle}" << std::endl;
-    }
-};
-
-int main() {
-    SystemExecutor<int> executor;
-    executor.execute();
-    return 0;
-}
-\`\`\`
-
-## 5. Critical Edge Cases & Common Pitfalls
-- **Null / Boundary Conditions**: Always validate pointer dereferences and array bounds prior to index computation.
-- **Off-By-One Errors**: Ensure loop terminators correctly respect half-open ranges $[0, n)$.
-- **Concurrency & Re-entrancy**: Guard shared critical sections with appropriate mutex primitives if multithreaded.
-
-## 6. High-Yield Revision Cheatsheet
-- Master the fundamental invariants before writing code.
-- Check time and space complexity trade-offs under varying workload sizes.
-- Verify corner cases (empty inputs, single elements, maximum boundary values).
-- Review handwritten derivations and diagrams for complete conceptual mastery.`;
+    // High quality multi-page fallback guaranteed to fill 2-3+ pages
+    const { generateComprehensiveTopicNotes } = require("./../pdf/generateNotesPdf");
+    return generateComprehensiveTopicNotes(topicTitle, courseName, undefined, existingNotes);
   }
 }
 
