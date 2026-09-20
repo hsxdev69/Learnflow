@@ -19,6 +19,8 @@ import {
   Layers,
   FileDown,
   FileText,
+  Trophy,
+  ArrowRight,
 } from "lucide-react";
 import LearningPathSelector, { LearningPathOption } from "./LearningPathSelector";
 import TopicPdfDownloadCard from "@/components/notes/TopicPdfDownloadCard";
@@ -664,6 +666,39 @@ export default function InteractiveDashboard({
             ))}
           </div>
         </div>
+      </div>
+
+      {/* HACKATHON & TECH SKILL READINESS PROMO CARD */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-950 text-white rounded-2xl p-6 shadow-xl border border-slate-800 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="flex items-start sm:items-center space-x-4 relative z-10">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-lg flex-shrink-0">
+            <Trophy className="w-7 h-7" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-300/30">
+                Hackathon Hub
+              </span>
+              <span className="text-xs text-slate-300">Technical Readiness Checks</span>
+            </div>
+            <h2 className="text-lg sm:text-xl font-black text-white mt-1">
+              Preparing for a Tech Hackathon?
+            </h2>
+            <p className="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
+              Select your track (AI/ML, Full-Stack, Mobile, DevOps, Cyber, Web3), explore core skill requirements, and take an 8-question scenario check for instant skill gap diagnostics.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/hackathon-readiness"
+          className="btn-press px-5 py-3 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold transition flex items-center gap-2 flex-shrink-0 shadow-md relative z-10"
+        >
+          <span>Check Hackathon Readiness</span>
+          <ArrowRight className="w-4 h-4 text-blue-600" />
+        </Link>
+
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
       </div>
 
       {/* RECENT QUIZ ATTEMPTS */}

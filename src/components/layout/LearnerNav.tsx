@@ -3,7 +3,7 @@
 import React, { useEffect, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, HelpCircle, TrendingUp, Sparkles } from "lucide-react";
+import { Home, BookOpen, HelpCircle, TrendingUp, Sparkles, Trophy } from "lucide-react";
 import { clsx } from "clsx";
 import { prefetchAllTabs, prefetchTab } from "@/lib/clientCache";
 
@@ -11,6 +11,7 @@ const navItems = [
   { name: "Home", href: "/dashboard", icon: Home },
   { name: "Learn", href: "/learn", icon: BookOpen },
   { name: "Quizzes", href: "/quizzes", icon: HelpCircle },
+  { name: "Hackathons", href: "/hackathon-readiness", icon: Trophy },
   { name: "Progress", href: "/competencies", icon: TrendingUp },
   { name: "Assistant", href: "/assistant", icon: Sparkles },
 ];
@@ -62,8 +63,8 @@ function LearnerNavComponent() {
       </nav>
 
       {/* Mobile Bottom Navigation Bar (PRD §40) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg px-2 py-1">
-        <div className="grid grid-cols-5 gap-1">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg px-1 py-1">
+        <div className="grid grid-cols-6 gap-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -78,17 +79,17 @@ function LearnerNavComponent() {
                 onMouseEnter={() => prefetchTab(item.name)}
                 onTouchStart={() => prefetchTab(item.name)}
                 className={clsx(
-                  "btn-press flex flex-col items-center justify-center py-2 text-xs font-medium rounded-xl transition-all duration-200",
+                  "btn-press flex flex-col items-center justify-center py-1.5 px-0.5 text-[10px] font-medium rounded-xl transition-all duration-200",
                   isActive
                     ? "text-blue-600 bg-blue-50 font-bold shadow-xs"
                     : "text-slate-500 hover:text-slate-800 active:bg-slate-100"
                 )}
               >
                 <Icon className={clsx(
-                  "w-5 h-5 mb-0.5 transition-transform duration-200",
+                  "w-4 h-4 mb-0.5 transition-transform duration-200",
                   isActive ? "scale-110 text-blue-600" : ""
                 )} />
-                <span>{item.name}</span>
+                <span className="truncate max-w-full">{item.name}</span>
               </Link>
             );
           })}

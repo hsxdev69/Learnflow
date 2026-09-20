@@ -14,6 +14,7 @@ import {
   BookOpen,
   RotateCcw,
   AlertTriangle,
+  Trophy,
 } from "lucide-react";
 
 import {
@@ -98,6 +99,37 @@ export default function QuizzesListPage() {
           <div className="flex items-center space-x-2 text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700">
             {quizzes.length} Published Quizzes
           </div>
+        </div>
+
+        {/* Hackathon & Tech Skill Readiness Hub Promotion Banner */}
+        <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-950 text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-slate-800">
+          <div className="flex items-center space-x-3.5">
+            <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-amber-300 flex-shrink-0 border border-white/10">
+              <Trophy className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-300/30">
+                  New Section
+                </span>
+                <span className="text-xs text-slate-300 font-medium">Domain Skill Readiness</span>
+              </div>
+              <h2 className="text-base sm:text-lg font-bold text-white mt-0.5">
+                Hackathon & Tech Skill Readiness Hub
+              </h2>
+              <p className="text-xs text-slate-300">
+                Analyze core skill requirements across AI/ML, Full-Stack, Mobile & DevOps, and take scenario-based readiness tests.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href="/hackathon-readiness"
+            className="btn-press px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold transition flex items-center gap-1.5 flex-shrink-0 shadow-xs"
+          >
+            <span>Explore Hackathon Tracks</span>
+            <ArrowRight className="w-3.5 h-3.5 text-blue-600" />
+          </Link>
         </div>
 
         {error ? (
