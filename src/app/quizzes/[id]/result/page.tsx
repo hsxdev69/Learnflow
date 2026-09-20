@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, Component, ReactNode } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
@@ -33,6 +33,7 @@ function ResultInner() {
   const [resultData, setResultData] = useState<any>(null);
   const [showReview, setShowReview] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const loadUserAndResult = async () => {
     setLoading(true);
@@ -46,9 +47,15 @@ function ResultInner() {
         const stored = sessionStorage.getItem(`quiz_result_${attemptId}`);
         if (stored) {
           try {
-            setResultData(JSON.parse(stored));
-            return;
-          } catch {}
+            const parsed = JSON.parse(stored);
+            if (parsed && typeof parsed === "object") {
+              setResultData(parsed);
+              setLoading(false);
+              return;
+            }
+          } catch (e) {
+            console.warn("Invalid stored result json", e);
+          }
         }
 
         // Fetch real attempt from database API
@@ -56,6 +63,7 @@ function ResultInner() {
         if (attRes.ok) {
           const attData = await attRes.json();
           setResultData(attData);
+          setLoading(false);
           return;
         }
       }
@@ -146,11 +154,15 @@ function ResultInner() {
     percentage = 0,
     correctAnswers = 0,
     incorrectAnswers = 0,
-    progression,
+    progression = null,
     weakAreas = [],
     evaluatedAnswers = [],
-    analysis,
-  } = resultData;
+    analysis = null,
+  } = resultData || {};
+
+  const safeWeakAreas = Array.isArray(weakAreas) ? weakAreas : [];
+  const safeEvaluatedAnswers = Array.isArray(evaluatedAnswers) ? evaluatedAnswers : [];
+  const quizId = Array.isArray(params?.id) ? params.id[0] : params?.id || "";
 
   // Determine Tier:
   // < 60%: RELEARN
@@ -265,7 +277,7 @@ function ResultInner() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                href={`/quizzes/${params.id}`}
+                href={`/quizzes/${quizId}`}
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white text-orange-900 font-extrabold text-xs shadow-lg hover:bg-orange-50 transition"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -307,7 +319,7 @@ function ResultInner() {
                 <span>Review Topic Notes & Lectures</span>
               </Link>
               <Link
-                href={`/quizzes/${params.id}`}
+                href={`/quizzes/${quizId}`}
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/20 text-white font-bold text-xs hover:bg-white/30 transition"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -345,7 +357,7 @@ function ResultInner() {
         </div>
 
         {/* Sub-Concept Weak Areas Diagnostics */}
-        {weakAreas.length > 0 && (
+        {safeWeakAreas.length > 0 && (
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-6">
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="w-4 h-4 text-amber-600" />
@@ -358,7 +370,7 @@ function ResultInner() {
             </p>
 
             <div className="flex flex-wrap gap-2">
-              {weakAreas.map((area: string, idx: number) => (
+              {safeWeakAreas.map((area: string, idx: number) => (
                 <span
                   key={idx}
                   className="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold"
@@ -384,7 +396,7 @@ function ResultInner() {
         )}
 
         {/* Question-by-Question Detailed Review Accordion */}
-        {evaluatedAnswers.length > 0 && (
+        {safeEvaluatedAnswers.length > 0 && (
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-6">
             <button
               onClick={() => setShowReview(!showReview)}
@@ -392,7 +404,7 @@ function ResultInner() {
             >
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-blue-600" />
-                <span>Review All {evaluatedAnswers.length} Questions & Explanations</span>
+                <span>Review All {safeEvaluatedAnswers.length} Questions & Explanations</span>
               </div>
               {showReview ? (
                 <ChevronUp className="w-4 h-4 text-slate-500" />
@@ -403,7 +415,7 @@ function ResultInner() {
 
             {showReview && (
               <div className="divide-y divide-slate-100 border-t border-slate-200 max-h-[600px] overflow-y-auto p-4 space-y-4">
-                {evaluatedAnswers.map((ans: any, idx: number) => (
+                {safeEvaluatedAnswers.map((ans: any, idx: number) => (
                   <div
                     key={idx}
                     className={`p-4 rounded-xl border text-xs space-y-2 ${
@@ -426,7 +438,7 @@ function ResultInner() {
                     </div>
 
                     <p className="font-semibold text-slate-900 text-xs leading-relaxed">
-                      {ans.questionText}
+                      {ans.questionText || `Question ID: ${ans.questionId || idx + 1}`}
                     </p>
 
                     <div className="flex items-center gap-4 text-[11px]">
@@ -440,7 +452,7 @@ function ResultInner() {
                           Option {ans.selectedOption || "Unanswered"}
                         </span>
                       </div>
-                      {!ans.isCorrect && (
+                      {!ans.isCorrect && ans.correctAnswer && (
                         <div>
                           Correct Answer:{" "}
                           <span className="font-bold text-emerald-700">
@@ -485,16 +497,71 @@ function ResultInner() {
   );
 }
 
+// Client-side Error Boundary to safeguard against unexpected runtime errors
+class ResultErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: any }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("ResultErrorBoundary caught:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 text-center shadow-lg max-w-md w-full">
+            <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-4 border border-rose-100 shadow-inner">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+            <h2 className="text-xl font-black text-slate-900 mb-2">Display Notice</h2>
+            <p className="text-xs text-slate-600 mb-6 leading-relaxed">
+              We encountered a temporary rendering issue loading your progress report. Please retry or return to dashboard.
+            </p>
+            <div className="space-y-2.5">
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false, error: null });
+                  window.location.reload();
+                }}
+                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Reload Progress Report
+              </button>
+              <Link
+                href="/dashboard"
+                className="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition block text-center"
+              >
+                Return to Dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function QuizResultPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
-    >
-      <ResultInner />
-    </Suspense>
+    <ResultErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+        }
+      >
+        <ResultInner />
+      </Suspense>
+    </ResultErrorBoundary>
   );
 }

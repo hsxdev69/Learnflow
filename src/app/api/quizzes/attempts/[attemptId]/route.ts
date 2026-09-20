@@ -51,6 +51,12 @@ export async function GET(
       } catch {}
     }
 
+    const evaluatedAnswers = (attempt.answers || []).map((a: any) => ({
+      questionId: a.questionId,
+      selectedOption: a.selectedOption,
+      isCorrect: a.isCorrect,
+    }));
+
     return NextResponse.json({
       success: true,
       attemptId: attempt.id,
@@ -62,6 +68,7 @@ export async function GET(
       passed: attempt.percentage >= (attempt.quiz?.passPercentage || 80),
       progression: parsedAnalysis.progression || null,
       weakAreas: parsedAnalysis.weakAreas || [],
+      evaluatedAnswers: evaluatedAnswers || [],
       analysis: parsedAnalysis,
       quiz: attempt.quiz,
     });
