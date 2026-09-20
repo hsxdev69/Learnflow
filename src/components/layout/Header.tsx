@@ -26,21 +26,6 @@ export default function Header({ user }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white shadow-xs">
-      {/* SIH 2026 Official Top Bar */}
-      <div className="bg-slate-950 text-slate-300 text-xs py-1 px-4 sm:px-6 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-semibold tracking-wide text-[11px] text-slate-200">
-            SMART INDIA HACKATHON 2026 • AI-POWERED PERSONALIZED LEARNING PLATFORM
-          </span>
-        </div>
-        <div className="hidden sm:flex items-center space-x-3 text-[11px] text-slate-400">
-          <span>Engineering Education</span>
-          <span>•</span>
-          <span className="text-blue-300 font-semibold">Autonomous Adaptive Progression</span>
-        </div>
-      </div>
-
       {/* Main Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
@@ -52,9 +37,6 @@ export default function Header({ user }: HeaderProps) {
             <div className="flex items-center space-x-2">
               <span className="text-lg font-black tracking-tight text-slate-900">
                 LearnFlow <span className="text-blue-600">AI</span>
-              </span>
-              <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
-                SIH 2026
               </span>
             </div>
             <p className="text-[11px] text-slate-500 hidden sm:block">

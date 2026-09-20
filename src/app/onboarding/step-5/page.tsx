@@ -13,7 +13,7 @@ const SOURCES = [
   { id: "College", label: "College / Faculty" },
   { id: "Friend / Classmate", label: "Friend / Classmate" },
   { id: "Google Search", label: "Google Search" },
-  { id: "Hackathon / Event", label: "Smart India Hackathon (SIH) / Event" },
+  { id: "Technical Event", label: "Coding Competition / Technical Event" },
   { id: "Other", label: "Other" },
 ];
 

@@ -121,7 +121,7 @@ export default function CompetenciesPage() {
           <div>
             <div className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200 mb-2">
               <Award className="w-3.5 h-3.5" />
-              <span>SIH 2026 Engineering Framework Benchmark</span>
+              <span>Engineering Framework Benchmark</span>
             </div>
             <h1 className="text-2xl font-bold text-slate-900">
               Engineering Competency & Mastery Profile

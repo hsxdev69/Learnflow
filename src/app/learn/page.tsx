@@ -345,7 +345,7 @@ function LearnContent() {
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-blue-200 border border-white/10">
                     <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                    <span>SIH 2026 Engineering Curriculum</span>
+                    <span>Engineering Skill Curriculum</span>
                   </div>
 
                   <div className="sm:hidden">
@@ -728,7 +728,7 @@ function LearnContent() {
               <div className="relative z-10 max-w-3xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold border border-blue-400/20 mb-3">
                   <Compass className="w-3.5 h-3.5 text-blue-300" />
-                  <span>SIH 2026 Engineering Catalog</span>
+                  <span>Engineering Course Catalog</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
                   Explore Engineering Disciplines & Skills

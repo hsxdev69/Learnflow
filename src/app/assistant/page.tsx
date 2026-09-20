@@ -41,7 +41,7 @@ export default function AssistantPage() {
       {
         id: "welcome",
         sender: "assistant",
-        text: "Hello! I am **LearnFlow AI**, your personal engineering mentor and tutor for Smart India Hackathon 2026.\n\nI can help you understand Data Structures & Algorithms, debug code in C++/Python/Java, explain complex concepts with intuitive diagrams, analyze Big-O time complexity, and guide your roadmap progress.\n\nWhat engineering doubt can I help you with right now?",
+        text: "Hello! I am **LearnFlow AI**, your personal engineering mentor and tutor.\n\nI can help you understand Data Structures & Algorithms, debug code in C++/Python/Java, explain complex concepts with intuitive diagrams, analyze Big-O time complexity, and guide your roadmap progress.\n\nWhat engineering doubt can I help you with right now?",
         source: "LearnFlow AI Engineering Intelligence Engine (Gemini)",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       },

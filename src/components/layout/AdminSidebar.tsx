@@ -64,8 +64,8 @@ export default function AdminSidebar() {
 
       <div className="border-t border-slate-800 pt-4 px-3">
         <div className="text-xs text-slate-400">
-          <p className="font-medium text-slate-300">MoSPI Capacity Building</p>
-          <p className="mt-0.5">Statistical System Node 2.4</p>
+          <p className="font-medium text-slate-300">LearnFlow AI Platform</p>
+          <p className="mt-0.5">Adaptive Intelligence Node 2.4</p>
         </div>
       </div>
     </aside>

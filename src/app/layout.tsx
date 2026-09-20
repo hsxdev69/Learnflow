@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Official Statistical Capacity Building Platform | MoSPI",
-  description: "AI-Powered Competency Intelligence and Capacity Building Platform for India's Official Statistical System",
+  title: "LearnFlow AI | Autonomous Adaptive Learning Platform",
+  description: "AI-Powered Personalized Learning Platform for Engineering Students",
 };
 
 export default function RootLayout({
