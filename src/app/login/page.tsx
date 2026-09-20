@@ -5,6 +5,33 @@ import { useRouter } from "next/navigation";
 import { Shield, UserCheck, ArrowRight, Lock, Mail, User, GraduationCap, Sparkles } from "lucide-react";
 
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+import {
+  auth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "@/lib/firebase";
+
+function formatFirebaseError(err: any): string {
+  const code = err?.code || "";
+  switch (code) {
+    case "auth/invalid-email":
+      return "Please enter a valid email address.";
+    case "auth/user-disabled":
+      return "This account has been disabled. Please contact support.";
+    case "auth/user-not-found":
+    case "auth/wrong-password":
+    case "auth/invalid-credential":
+      return "Invalid email or password. Please check your credentials.";
+    case "auth/email-already-in-use":
+      return "An account with this email already exists. Please sign in instead.";
+    case "auth/weak-password":
+      return "Password is too weak. Please use at least 6 characters.";
+    case "auth/network-request-failed":
+      return "Network error. Please check your internet connection.";
+    default:
+      return err?.message || "Authentication failed. Please try again.";
+  }
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,36 +55,110 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
+    // If quick demo access button clicked, use standard demo login route
+    if (demoEmail) {
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: demoEmail,
+            isDemoUser: true,
+            demoEmail,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Demo login failed.");
+          setLoading(false);
+          return;
+        }
+        router.push(data.user.role === "ADMIN" ? "/admin/dashboard" : "/dashboard");
+        router.refresh();
+        return;
+      } catch (demoErr) {
+        setError("Demo login failed.");
+        setLoading(false);
+        return;
+      }
+    }
+
+    if (!emailOrEmpId) {
+      setError("Please enter your email address.");
+      setLoading(false);
+      return;
+    }
+
+    if (!password) {
+      setError("Please enter your password.");
+      setLoading(false);
+      return;
+    }
+
+    // 1. Authenticate with Firebase Email/Password
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: demoEmail || emailOrEmpId,
-          password: password || "Password@123",
-          isDemoUser: Boolean(demoEmail),
-          demoEmail,
-        }),
-      });
+      let firebaseUser = null;
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          emailOrEmpId.trim(),
+          password
+        );
+        firebaseUser = userCredential.user;
+      } catch (firebaseErr: any) {
+        // If not found in Firebase yet, fall back to local database verify
+        console.warn("Firebase email sign-in note:", firebaseErr?.code);
+        const fallbackRes = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: emailOrEmpId,
+            password,
+          }),
+        });
+        const fallbackData = await fallbackRes.json();
+        if (fallbackRes.ok && fallbackData.user) {
+          router.push(
+            fallbackData.user.role === "ADMIN"
+              ? "/admin/dashboard"
+              : fallbackData.user.onboardingCompleted
+              ? "/dashboard"
+              : "/onboarding/step-1"
+          );
+          router.refresh();
+          return;
+        }
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Login failed. Please check your credentials.");
+        // If local database also rejected, format Firebase error
+        setError(formatFirebaseError(firebaseErr));
         setLoading(false);
         return;
       }
 
-      if (data.user.role === "ADMIN") {
-        router.push("/admin/dashboard");
-      } else if (!data.user.onboardingCompleted && !demoEmail) {
-        router.push("/onboarding/step-1");
-      } else {
-        router.push("/dashboard");
+      // 2. Sync Firebase user session with LearnFlow backend
+      if (firebaseUser?.email) {
+        const syncRes = await fetch("/api/auth/firebase", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: firebaseUser.email,
+            name: firebaseUser.displayName,
+            uid: firebaseUser.uid,
+            providerId: "password",
+          }),
+        });
+
+        const syncData = await syncRes.json();
+        if (!syncRes.ok) {
+          throw new Error(syncData.error || "Session synchronization failed.");
+        }
+
+        router.push(syncData.redirectTo || "/dashboard");
+        router.refresh();
       }
-      router.refresh();
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+    } catch (err: any) {
+      console.error("Login process error:", err);
+      setError(err?.message || "An unexpected error occurred. Please try again.");
       setLoading(false);
     }
   };
@@ -66,38 +167,65 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
+    if (!signupName.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+
     if (signupPassword !== signupConfirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+
+    if (signupPassword.length < 6) {
+      setError("Password must be at least 6 characters long.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: signupName,
-          email: signupEmail,
-          password: signupPassword,
-          confirmPassword: signupConfirmPassword,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Signup failed. Please check your details.");
+      // 1. Create account in Firebase Auth
+      let firebaseUser = null;
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          signupEmail.trim(),
+          signupPassword
+        );
+        firebaseUser = userCredential.user;
+      } catch (fbErr: any) {
+        // If email already in use or Firebase error
+        console.warn("Firebase create user error:", fbErr?.code);
+        setError(formatFirebaseError(fbErr));
         setLoading(false);
         return;
       }
 
-      // Per PRD §5: After successful signup, DO NOT send directly to Home. Send to /onboarding/step-1
+      // 2. Sync with LearnFlow database & establish session
+      const syncRes = await fetch("/api/auth/firebase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: signupEmail.trim(),
+          name: signupName.trim(),
+          uid: firebaseUser?.uid,
+          providerId: "password",
+          isNewUser: true,
+        }),
+      });
+
+      const syncData = await syncRes.json();
+      if (!syncRes.ok) {
+        throw new Error(syncData.error || "Account setup failed.");
+      }
+
+      // Per PRD §5: After successful signup, route to onboarding step 1
       router.push("/onboarding/step-1");
       router.refresh();
-    } catch (err) {
-      setError("An unexpected error occurred during signup.");
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      setError(err?.message || "An unexpected error occurred during signup.");
       setLoading(false);
     }
   };

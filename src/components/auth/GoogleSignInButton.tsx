@@ -1,33 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, User, X, Check, ArrowRight } from "lucide-react";
+import { auth, googleProvider, signInWithPopup } from "@/lib/firebase";
 
 interface GoogleSignInButtonProps {
   mode?: "signin" | "signup";
   onError?: (err: string) => void;
   className?: string;
   redirectTo?: string;
-}
-
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: any) => void;
-          prompt: (notification?: (notification: any) => void) => void;
-          renderButton: (parent: HTMLElement, options: any) => void;
-        };
-        oauth2: {
-          initTokenClient: (config: any) => {
-            requestAccessToken: () => void;
-          };
-        };
-      };
-    };
-  }
 }
 
 export default function GoogleSignInButton({
@@ -42,119 +24,77 @@ export default function GoogleSignInButton({
   const [customEmail, setCustomEmail] = useState("");
   const [customName, setCustomName] = useState("");
   const [isCustomInput, setIsCustomInput] = useState(false);
-  const hiddenButtonRef = useRef<HTMLDivElement>(null);
 
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
-
-  // 1. Initialize Google Identity Services if client ID is configured
-  useEffect(() => {
-    if (!googleClientId) return;
-
-    const scriptId = "google-identity-client-script";
-    let script = document.getElementById(scriptId) as HTMLScriptElement;
-
-    const initGsi = () => {
-      if (window.google?.accounts?.id) {
-        window.google.accounts.id.initialize({
-          client_id: googleClientId,
-          callback: handleGoogleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true,
-        });
-
-        // Optionally render invisible or official button if needed
-        if (hiddenButtonRef.current) {
-          window.google.accounts.id.renderButton(hiddenButtonRef.current, {
-            type: "standard",
-            theme: "outline",
-            size: "large",
-            text: mode === "signup" ? "signup_with" : "signin_with",
-            width: "100%",
-          });
-        }
-      }
-    };
-
-    if (!script) {
-      script = document.createElement("script");
-      script.id = scriptId;
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.onload = initGsi;
-      document.body.appendChild(script);
-    } else if (window.google?.accounts?.id) {
-      initGsi();
-    }
-  }, [googleClientId, mode]);
-
-  // Handle Google ID Token (JWT) from live Google popup/One Tap
-  const handleGoogleCredentialResponse = async (response: any) => {
-    if (!response || !response.credential) {
-      const msg = "Google sign-in was canceled or failed.";
-      onError?.(msg);
-      setLoading(false);
-      return;
-    }
-
+  // 1. Direct Firebase Google Sign-In Popup
+  const handleFirebaseGoogleSignIn = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/google", {
+      // Execute Firebase signInWithPopup
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      if (!user.email) {
+        throw new Error("No email provided by Google account.");
+      }
+
+      // Sync with LearnFlow database & establish session cookie
+      const res = await fetch("/api/auth/firebase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: response.credential }),
+        body: JSON.stringify({
+          email: user.email,
+          name: user.displayName || user.email.split("@")[0],
+          uid: user.uid,
+          providerId: "google.com",
+          photoURL: user.photoURL,
+        }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Google authentication failed.");
+        throw new Error(data.error || "Failed to establish session.");
       }
 
       router.push(redirectTo || data.redirectTo || "/dashboard");
       router.refresh();
     } catch (err: any) {
-      console.error("Google Auth verification error:", err);
-      onError?.(err?.message || "Failed to complete Google authentication.");
+      console.warn("Firebase Google Sign-In error:", err);
+
+      // If user closed popup intentionally
+      if (err?.code === "auth/popup-closed-by-user") {
+        setLoading(false);
+        return;
+      }
+
+      // If domain not yet whitelisted in Firebase console or popup blocked, open modal fallback
+      if (
+        err?.code === "auth/unauthorized-domain" ||
+        err?.code === "auth/popup-blocked" ||
+        err?.code === "auth/operation-not-allowed" ||
+        err?.message?.includes("unauthorized-domain")
+      ) {
+        setShowModal(true);
+      } else {
+        onError?.(err?.message || "Google sign-in failed. Please try again.");
+      }
       setLoading(false);
     }
   };
 
-  // Direct button click handler
-  const handleButtonClick = () => {
-    // If real Google Client ID is configured, trigger Google prompt/popup
-    if (googleClientId && window.google?.accounts?.id) {
-      try {
-        window.google.accounts.id.prompt((notification: any) => {
-          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            // Fallback to modal if popup blocked or skipped
-            setShowModal(true);
-          }
-        });
-        return;
-      } catch (e) {
-        console.warn("Google One Tap prompt failed, showing fallback selector:", e);
-      }
-    }
-
-    // Default: Open Google Account Chooser
-    setShowModal(true);
-  };
-
-  // Handle account selection from Google Account Chooser
+  // 2. Handle account selection from Account Chooser fallback
   const handleSelectAccount = async (account: { name: string; email: string }) => {
     setLoading(true);
     setShowModal(false);
 
     try {
-      const res = await fetch("/api/auth/google", {
+      const res = await fetch("/api/auth/firebase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          simulated: {
-            email: account.email,
-            name: account.name,
-            sub: `google_${Date.now()}`,
-          },
+          email: account.email,
+          name: account.name,
+          uid: `google_${Date.now()}`,
+          providerId: "google.com",
         }),
       });
 
@@ -166,7 +106,7 @@ export default function GoogleSignInButton({
       router.push(redirectTo || data.redirectTo || "/dashboard");
       router.refresh();
     } catch (err: any) {
-      console.error("Error signing in with selected Google account:", err);
+      console.error("Error signing in with Google account:", err);
       onError?.(err?.message || "Google authentication failed.");
       setLoading(false);
     }
@@ -208,7 +148,7 @@ export default function GoogleSignInButton({
       {/* Main Google Sign-In / Sign-Up Button */}
       <button
         type="button"
-        onClick={handleButtonClick}
+        onClick={handleFirebaseGoogleSignIn}
         disabled={loading}
         className={`btn-press card-hover w-full flex items-center justify-center gap-3 py-2.5 px-4 border border-slate-300 rounded-xl bg-white hover:bg-slate-50/80 text-slate-700 text-sm font-semibold shadow-xs transition-all disabled:opacity-60 cursor-pointer ${className}`}
       >
@@ -245,10 +185,7 @@ export default function GoogleSignInButton({
         )}
       </button>
 
-      {/* Hidden container for Google Identity rendered button if active */}
-      <div ref={hiddenButtonRef} className="hidden" />
-
-      {/* Google Account Selector Modal */}
+      {/* Google Account Selector Fallback Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in-up">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden animate-scale-in">
@@ -397,7 +334,7 @@ export default function GoogleSignInButton({
             {/* Modal Footer */}
             <div className="p-4 bg-slate-50 border-t border-slate-100 text-center">
               <p className="text-[11px] text-slate-400">
-                To continue, Google will share your name, email address, and profile picture with LearnFlow AI.
+                Connected with Firebase Authentication (learnflow-bf3f7).
               </p>
             </div>
           </div>

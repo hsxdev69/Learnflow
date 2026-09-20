@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { LogOut, User as UserIcon, Shield, Sparkles, BookOpen, GraduationCap } from "lucide-react";
 import { SessionUser } from "@/types";
 
+import { auth, signOut } from "@/lib/firebase";
+
 interface HeaderProps {
   user: SessionUser;
 }
@@ -14,6 +16,11 @@ export default function Header({ user }: HeaderProps) {
 
   const handleLogout = async () => {
     try {
+      try {
+        await signOut(auth);
+      } catch (fbErr) {
+        console.warn("Firebase signout note:", fbErr);
+      }
       await fetch("/api/auth/logout", { method: "POST" });
       router.push("/login");
       router.refresh();
