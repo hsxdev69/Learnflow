@@ -430,8 +430,11 @@ export function generateMultiPageNotesHtml(options: NotesHtmlOptions): string {
     
     pre code {
       background: transparent;
-      color: inherit;
+      color: #e2e8f0 !important;
       padding: 0;
+      display: block;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
     
     .math-tex {

@@ -200,7 +200,7 @@ export default function TopicDetailPage() {
             }`}
           >
             <HelpCircle className="w-4 h-4" />
-            <span>🧠 {topic.quiz?.questionCount || 5}-Q Quiz</span>
+            <span>🧠 {topic.quiz?.questionCount || 30}-Q Quiz</span>
             {progress?.quizCompleted && <span className="text-xs">✓</span>}
           </button>
 
@@ -303,13 +303,13 @@ export default function TopicDetailPage() {
 
             <div className="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">
               <span className="text-xs text-slate-500 font-medium">
-                Ready to test your knowledge? Take the {topic.quiz?.questionCount || 5}-question quiz.
+                Ready to test your knowledge? Take the {topic.quiz?.questionCount || 30}-question quiz.
               </span>
               <button
                 onClick={() => setActiveTab("quiz")}
                 className="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-800"
               >
-                <span>Go to {topic.quiz?.questionCount || 5}-Q Quiz</span>
+                <span>Go to {topic.quiz?.questionCount || 30}-Q Quiz</span>
                 <ChevronRight className="w-4 h-4 ml-0.5" />
               </button>
             </div>
@@ -328,13 +328,13 @@ export default function TopicDetailPage() {
                 Ready for the {topic.title} Quiz?
               </h2>
               <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-                Test your understanding with our rigorous {topic.quiz?.questionCount || 5}-question assessment. Score ≥80% to demonstrate proficiency and unlock the next roadmap milestone.
+                Test your understanding with our rigorous {topic.quiz?.questionCount || 30}-question assessment. Score ≥80% to demonstrate proficiency and unlock the next roadmap milestone.
               </p>
 
               <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-8 text-left text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div>
                   <span className="text-slate-400 block">Total Questions</span>
-                  <span className="text-sm font-black text-slate-800">{topic.quiz?.questionCount || 5} Questions</span>
+                  <span className="text-sm font-black text-slate-800">{topic.quiz?.questionCount || 30} Questions</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block">Passing Rule</span>

@@ -157,6 +157,119 @@ ${cleanExisting ? `### Additional Curriculum Notes:\n${cleanExisting}` : ""}`;
 }
 
 /**
+ * Sanitizes all text to safe ASCII / Latin-1 for standard jsPDF fonts.
+ * Replaces unmapped Unicode characters (arrows, em dashes, math operators, curly quotes)
+ * that cause jsPDF to drop characters or render blank boxes.
+ */
+export function sanitizePdfText(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/→/g, "->")
+    .replace(/←/g, "<-")
+    .replace(/[—–]/g, "-")
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/•/g, "*")
+    .replace(/≤/g, "<=")
+    .replace(/≥/g, ">=")
+    .replace(/≠/g, "!=")
+    .replace(/\u00A0/g, " ")
+    .replace(/[^\x00-\x7F]/g, " ");
+}
+
+/**
+ * Robustly renders code blocks across single or multiple pages with syntax wrapping
+ * and high-contrast styling so code text is NEVER blank, cut off, or missing.
+ */
+export function renderCodeBlockToPdf(
+  doc: jsPDF,
+  codeLines: string[],
+  currentY: number,
+  margin: number,
+  contentWidth: number,
+  maxY: number,
+  drawHeaderAndFooter: (p: number) => void
+): number {
+  if (!codeLines || codeLines.length === 0) return currentY;
+
+  let y = currentY;
+  const lineHeight = 3.8;
+  const paddingX = 4;
+
+  // Flatten and wrap all code lines
+  doc.setFont("courier", "normal");
+  doc.setFontSize(7.5);
+
+  const wrappedCodeLines: string[] = [];
+  for (const cl of codeLines) {
+    const cleanLine = sanitizePdfText(cl.replace(/\t/g, "  "));
+    const splits = doc.splitTextToSize(cleanLine || " ", contentWidth - paddingX * 2);
+    if (Array.isArray(splits)) {
+      wrappedCodeLines.push(...splits);
+    } else {
+      wrappedCodeLines.push(splits);
+    }
+  }
+
+  // If page is almost full (less than 20mm left), start a fresh page
+  if (y + 20 > maxY) {
+    doc.addPage();
+    drawHeaderAndFooter(doc.getNumberOfPages());
+    y = 30;
+  }
+
+  let lineIdx = 0;
+  while (lineIdx < wrappedCodeLines.length) {
+    // Check how many lines can fit on the current page
+    const availableHeight = maxY - y - 10;
+    const linesThatFit = Math.max(1, Math.floor((availableHeight - 6) / lineHeight));
+    const chunkLines = wrappedCodeLines.slice(lineIdx, lineIdx + linesThatFit);
+    const boxHeight = chunkLines.length * lineHeight + 7;
+
+    // Background container box
+    doc.setFillColor(248, 250, 252); // slate-50
+    doc.setDrawColor(203, 213, 225); // slate-300
+    doc.setLineWidth(0.3);
+    doc.roundedRect(margin, y, contentWidth, boxHeight, 1.5, 1.5, "FD");
+
+    // Header strip for code box
+    doc.setFillColor(241, 245, 249);
+    doc.rect(margin, y, contentWidth, 4.2, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6.5);
+    doc.setTextColor(37, 99, 235);
+    doc.text(
+      lineIdx === 0 ? "CODE IMPLEMENTATION & SYNTAX REFERENCE" : "CODE IMPLEMENTATION (CONTINUED)",
+      margin + 3,
+      y + 3.0
+    );
+
+    // Code lines rendering
+    doc.setFont("courier", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(15, 23, 42); // #0F172A - 100% visible, dark and sharp
+
+    let codeY = y + 7.5;
+    for (const codeLine of chunkLines) {
+      doc.text(codeLine, margin + paddingX, codeY);
+      codeY += lineHeight;
+    }
+
+    y += boxHeight + 4;
+    lineIdx += chunkLines.length;
+
+    // If more code lines remain, add next page and continue
+    if (lineIdx < wrappedCodeLines.length) {
+      doc.addPage();
+      drawHeaderAndFooter(doc.getNumberOfPages());
+      y = 30;
+    }
+  }
+
+  return y;
+}
+
+/**
  * Builds the complete jsPDF document instance with multi-page support (2-3+ pages).
  */
 export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
@@ -202,13 +315,13 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
 
     if (courseName) {
       doc.setFontSize(8);
-      const safeCourse = courseName.length > 35 ? courseName.slice(0, 35) + "..." : courseName;
+      const safeCourse = sanitizePdfText(courseName.length > 35 ? courseName.slice(0, 35) + "..." : courseName);
       doc.text(safeCourse.toUpperCase(), pageWidth - margin, 11, { align: "right" });
     }
 
     if (category) {
       doc.setFontSize(7);
-      doc.text(`[ ${category} ]`, pageWidth - margin, 16, { align: "right" });
+      doc.text(`[ ${sanitizePdfText(category)} ]`, pageWidth - margin, 16, { align: "right" });
     }
 
     // Footer divider line
@@ -230,7 +343,7 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
   doc.setTextColor(15, 23, 42); // slate-900
   doc.setFont("helvetica", "bold");
   doc.setFontSize(17);
-  const titleLines = doc.splitTextToSize(title, contentWidth);
+  const titleLines = doc.splitTextToSize(sanitizePdfText(title), contentWidth);
   doc.text(titleLines, margin, y);
   y += titleLines.length * 7 + 2;
 
@@ -247,7 +360,7 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
     day: "numeric",
     year: "numeric",
   });
-  const metaLine = `Module: ${moduleName}   |   Est. Study: ${estimatedTime}   |   Date: ${todayStr}`;
+  const metaLine = sanitizePdfText(`Module: ${moduleName}   |   Est. Study: ${estimatedTime}   |   Date: ${todayStr}`);
   doc.text(metaLine, margin + 4, y + 6.5);
   y += 16;
 
@@ -271,31 +384,15 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
     if (rawLine.trim().startsWith("```")) {
       if (inCodeBlock) {
         inCodeBlock = false;
-        doc.setFillColor(241, 245, 249);
-        doc.setDrawColor(203, 213, 225);
-        doc.setFont("courier", "normal");
-        doc.setFontSize(7.5);
-        doc.setTextColor(30, 41, 59);
-
-        const codeLineHeight = 4.2;
-        const codeBoxHeight = codeBuffer.length * codeLineHeight + 6;
-
-        if (y + codeBoxHeight > maxY) {
-          doc.addPage();
-          drawHeaderAndFooter(doc.getNumberOfPages());
-          y = 30;
-        }
-
-        doc.roundedRect(margin, y, contentWidth, codeBoxHeight, 2, 2, "FD");
-
-        let codeY = y + 5;
-        codeBuffer.forEach((cl) => {
-          const safeCl = cl.replace(/\t/g, "  ");
-          doc.text(safeCl, margin + 4, codeY);
-          codeY += codeLineHeight;
-        });
-
-        y += codeBoxHeight + 5;
+        y = renderCodeBlockToPdf(
+          doc,
+          codeBuffer,
+          y,
+          margin,
+          contentWidth,
+          maxY,
+          drawHeaderAndFooter
+        );
         codeBuffer = [];
       } else {
         inCodeBlock = true;
@@ -326,7 +423,7 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       doc.setTextColor(30, 58, 138);
-      const heading = trimmed.replace("# ", "").replace(/\*\*/g, "");
+      const heading = sanitizePdfText(trimmed.replace("# ", "").replace(/\*\*/g, ""));
       doc.text(heading, margin, y);
       y += 5;
       doc.setDrawColor(191, 219, 254);
@@ -345,7 +442,7 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.setTextColor(30, 64, 175);
-      const heading = trimmed.replace("## ", "").replace(/\*\*/g, "");
+      const heading = sanitizePdfText(trimmed.replace("## ", "").replace(/\*\*/g, ""));
       doc.text(heading, margin, y);
       y += 5.5;
     }
@@ -360,7 +457,7 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9.5);
       doc.setTextColor(51, 65, 85);
-      const heading = trimmed.replace("### ", "").replace(/\*\*/g, "");
+      const heading = sanitizePdfText(trimmed.replace("### ", "").replace(/\*\*/g, ""));
       doc.text(heading, margin, y);
       y += 4.5;
     }
@@ -371,7 +468,7 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
         drawHeaderAndFooter(doc.getNumberOfPages());
         y = 30;
       }
-      const quote = trimmed.replace("> ", "").replace(/\*\*/g, "");
+      const quote = sanitizePdfText(trimmed.replace("> ", "").replace(/\*\*/g, ""));
       const wrappedQuote = doc.splitTextToSize(quote, contentWidth - 12);
       const quoteHeight = wrappedQuote.length * 4.2 + 4;
 
@@ -395,7 +492,7 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
       doc.setFontSize(8.5);
       doc.setTextColor(30, 41, 59);
 
-      const bulletText = trimmed.replace(/^[-*]\s+/, "").replace(/\*\*/g, "");
+      const bulletText = sanitizePdfText(trimmed.replace(/^[-*]\s+/, "").replace(/\*\*/g, ""));
       const wrapped = doc.splitTextToSize(bulletText, contentWidth - 8);
 
       if (y + wrapped.length * 4.2 > maxY) {
@@ -416,8 +513,8 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
       doc.setTextColor(30, 41, 59);
 
       const match = trimmed.match(/^(\d+)\.\s+(.*)/);
-      const num = match ? match[1] + "." : "•";
-      const rest = (match ? match[2] : trimmed).replace(/\*\*/g, "");
+      const num = match ? match[1] + "." : "-";
+      const rest = sanitizePdfText((match ? match[2] : trimmed).replace(/\*\*/g, ""));
       const wrapped = doc.splitTextToSize(rest, contentWidth - 10);
 
       if (y + wrapped.length * 4.2 > maxY) {
@@ -441,7 +538,7 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
       doc.setFontSize(8.5);
       doc.setTextColor(51, 65, 85);
 
-      const cleanLine = trimmed.replace(/\*\*/g, "");
+      const cleanLine = sanitizePdfText(trimmed.replace(/\*\*/g, ""));
       const wrapped = doc.splitTextToSize(cleanLine, contentWidth);
 
       if (y + wrapped.length * 4.2 > maxY) {
@@ -453,6 +550,20 @@ export function buildTopicNotesPdfDocument(options: TopicPdfOptions): jsPDF {
       doc.text(wrapped, margin, y);
       y += wrapped.length * 4.2 + 1.8;
     }
+  }
+
+  // Flush any remaining code buffer
+  if (inCodeBlock && codeBuffer.length > 0) {
+    y = renderCodeBlockToPdf(
+      doc,
+      codeBuffer,
+      y,
+      margin,
+      contentWidth,
+      maxY,
+      drawHeaderAndFooter
+    );
+    codeBuffer = [];
   }
 
   // Update Page numbers in footer
