@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, UserCheck, ArrowRight, Lock, Mail, User, GraduationCap, Sparkles } from "lucide-react";
 
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+
 export default function LoginPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
@@ -158,6 +160,22 @@ export default function LoginPage() {
               {error}
             </div>
           )}
+
+          {/* Google Sign-In / Sign-Up Button */}
+          <div className="mb-5">
+            <GoogleSignInButton
+              mode={activeTab === "signup" ? "signup" : "signin"}
+              onError={(err) => setError(err)}
+            />
+
+            <div className="relative flex items-center justify-center my-4">
+              <div className="border-t border-slate-200 w-full" />
+              <span className="bg-white px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                Or continue with email
+              </span>
+              <div className="border-t border-slate-200 w-full" />
+            </div>
+          </div>
 
           {activeTab === "login" ? (
             <form className="space-y-4" onSubmit={(e) => handleLogin(e)}>
